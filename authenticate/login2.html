@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../assets/js/helper.js"></script>
+</head>
+
+<body>
+
+    <input type="text" id="username" placeholder="username..." value="student">
+    <input type="password" id="password" placeholder="password..." value="password">
+    <button id="btn-login">Login</button>
+
+
+    <script>
+        $("#btn-login").click(function () {
+            $.ajax({
+                "url": "http://localhost:8081/api/login",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                "data": {
+                    "username": $('#username').val(),
+                    "password": $("#password").val()
+                },
+                success: function (data) {
+                    sessionStorage.setItem("jwt", "Bearer " + data.access_token)
+                    sessionStorage.setItem("role", data.role)
+
+                    var settings = {
+                        "url": "http://localhost:8081/api/is-active",
+                        "method": "GET",
+                        "timeout": 0,
+                        "headers": {
+                            "Authorization": sessionStorage.getItem("jwt")
+                        },
+                    };
+
+                    $.ajax(settings).done(function (response) {
+                        if (response == false) {
+                            alert("You Account Is Not Active Yet, Try Again Later!")
+                            sessionStorage.removeItem("jwt")
+                            sessionStorage.removeItem("role")
+                        } else {
+                            redirect("dashboard/dashboard.html")
+                        }
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    if (xhr.status == 403) {
+                        alert("no user")
+                    }
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

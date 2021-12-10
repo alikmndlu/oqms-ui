@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Question</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../../assets/js/helper.js"></script>
+</head>
+
+<body>
+    <a href="../bank_of_question.html">
+        <button id="btn-update-question">
+            Back To Bank Of Question
+        </button>
+    </a><br>
+
+    <p>Title</p>
+    <input type="text" id="title" placeholder="title..."><br><br>
+
+    <p>Text</p>
+    <textarea name="text" id="text" cols="30" rows="10"></textarea><br><br>
+
+    <p>Question Type</p>
+    <select id="type">
+        <option value="descriptive">Descriptive</option>
+        <option value="multiselect">MultiSelect</option>
+    </select><br><br>
+
+    <div id="answers">
+        <h3>Answers</h3>
+    </div>
+
+    <div id="true-answer">
+        <button id="btn-select-true-answer">Select True Answer</button><br><br>
+    </div>
+
+    <button id="btn-update">
+        Update Question
+    </button>
+
+    <script>
+        var questionId = $.urlParam("id")
+        var questionType;
+        var answers = $("#answers")
+        var trueAnswer = $("#true-answer")
+        answers.hide()
+        trueAnswer.hide()
+
+        $.ajax({
+            "url": "http://localhost:8081/api/teacher/question/" + questionId,
+            "method": "GET",
+            "timeout": 0,
+            "headers": {
+                "Authorization": sessionStorage.getItem('jwt'),
+            },
+            success: function (data) {
+                console.log(data);
+                questionType = (data.type == 'MULTI_SELECT') ? 'multiselect' : 'descriptive'
+                $("#type").val(questionType).change();
+                $('#type').attr('disabled', 'disabled');
+                $("#title").val(data.title)
+                $("#text").val(data.text)
+
+                if (questionType == 'multiselect') {
+                    answers.show()
+                    trueAnswer.show()
+
+                    data.answers.forEach(function (elmnt) {
+                        answers.append(
+                            '<input type="text" class="answer" value="' + elmnt + '" placeholder="type answer"><br><br>'
+                        )
+                    });
+                }
+            }
+        });
+
+        $("#btn-select-true-answer").click(function () {
+            $("#answers-list").remove()
+            trueAnswer.append('<select id="answers-list"></select><br><br>')
+
+            $('.answer').each(function (i, obj) {
+                $("#answers-list").append('<option class="answer-list">' + obj.value + '</option>')
+            });
+        })
+
+        $("#btn-update").click(function () {
+            if (questionType == 'descriptive') {
+                $.ajax({
+                    "url": "http://localhost:8081/api/teacher/question/descriptive/update",
+                    "method": "PUT",
+                    "timeout": 0,
+                    "headers": {
+                        "Authorization": sessionStorage.getItem('jwt'),
+                        "Content-Type": "application/json"
+                    },
+                    "data": JSON.stringify({
+                        "id": questionId,
+                        "title": $("#title").val(),
+                        "text": $("#text").val()
+                    }),
+                    success: function (data) {
+                        alert("Question Update Successfully.")
+                        redirect("teacher/bank_of_question.html")
+                    }
+                });
+            } else {
+                // Question is Multi-Select
+                var info = {
+                    "title": $("#title").val(),
+                    "text": $("#text").val(),
+                }
+
+                info.answers = []
+                $("#answers-list option").each(function () {
+                    if (this.selected) {
+                        info.trueAnswer = this.text
+                        return true
+                    } else {
+                        info.answers.push(this.text)
+                    }
+                });
+
+                console.log(info);
+
+                var settings = {
+                    "url": "http://localhost:8081/api/teacher/question/multiselect/update",
+                    "method": "PUT",
+                    "timeout": 0,
+                    "headers": {
+                        "Authorization": sessionStorage.getItem('jwt'),
+                        "Content-Type": "application/json"
+                    },
+                    "data": JSON.stringify({
+                        "id": questionId,
+                        "title": info.title,
+                        "text": info.text,
+                        "answers": info.answers,
+                        "trueAnswer": info.trueAnswer
+                    }),
+                };
+
+                console.log(settings.data);
+                console.log(info);
+
+                $.ajax(settings).done(function (response) {
+                    console.log(response);
+                });
+            }
+        })
+
+
+    </script>
+</body>
+
+</html>

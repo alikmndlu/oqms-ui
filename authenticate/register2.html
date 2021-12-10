@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../assets/js/helper.js"></script>
+</head>
+
+<body>
+    <input type="text" id="name" placeholder="name..." value="">
+    <input type="text" id="username" placeholder="username..." value="">
+    <input type="password" id="password" placeholder="password..." value="">
+    <input type="password" id="password-confirm" placeholder="password confirm..." value="">
+    <select id="role">
+        <option value="ROLE_STUDENT">Student</option>
+        <option value="ROLE_TEACHER">Teacher</option>
+    </select>
+    <button id="btn-register">Register</button>
+
+    <script>
+        $("#btn-register").click(function () {
+            console.log($('#name').val());
+            console.log($('#username').val());
+            console.log($('#password').val());
+            console.log($('#password-confirm').val());
+            console.log($('#role').val());
+            $.ajax({
+                "url": "http://localhost:8081/api/register",
+                "method": "POST",
+                "timeout": 0,
+                "headers": {
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify({
+                    "name": $('#name').val(),
+                    "username": $('#username').val(),
+                    "password": $('#password').val(),
+                    "passwordConfirm": $('#password-confirm').val(),
+                    "role": $('#role').find(":selected").val()
+                }),
+                success: function (data) {
+                    alert("Done, You Can Login Now")
+                    redirect("authenticate/login.html")
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert("something wrong in register")
+                }
+            });
+        })
+    </script>
+</body>
+
+</html>

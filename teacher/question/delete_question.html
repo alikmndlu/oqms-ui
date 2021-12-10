@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Question</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../../assets/js/helper.js"></script>
+    <script src="../../assets/js/authenticate.js"></script>
+</head>
+
+<body>
+
+    <script>
+        var questionId = $.urlParam("id")
+        console.log(questionId);
+        $.ajax({
+            "url": "http://localhost:8081/api/teacher/question/delete/" + questionId,
+            "method": "DELETE",
+            "timeout": 0,
+            "headers": {
+                "Authorization": sessionStorage.getItem("jwt"),
+            },
+            success: function (data) {
+                console.log(data);
+                alert("Question Delete Successfully.")
+                redirect("teacher/bank_of_question.html")
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert("Something Wrong.")
+                console.log(xhr);
+                console.log(ajaxOptions);
+                console.log(thrownError);
+                redirect("teacher/bank_of_question.html")
+            }
+        });
+    </script>
+</body>
+
+</html>

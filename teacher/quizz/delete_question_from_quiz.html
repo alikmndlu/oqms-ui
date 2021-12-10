@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Question From Quiz</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../../assets/js/helper.js"></script>
+    <script src="../../assets/js/authenticate.js"></script>
+</head>
+
+<body>
+    <script>
+        var questionId = $.urlParam("questionId")
+        var quizId = $.urlParam("quizId")
+
+        $.ajax({
+                "url": "http://localhost:8081/api/teacher/quiz/question/delete",
+                "method": "DELETE",
+                "timeout": 0,
+                "headers": {
+                    "Authorization": sessionStorage.getItem("jwt"),
+                    "Content-Type": "application/json"
+                },
+                "data": JSON.stringify({
+                    "quizId": quizId,
+                    "questionId": questionId,
+                }),
+                success: function (data) {
+                    alert("Question Deleted From Quiz Successfully.")
+                    redirect("teacher/quizz/add_question_to_quiz_list.html?quizId=" + quizId)
+                }
+            });
+        
+    
+    </script>
+</body>
+
+</html>
